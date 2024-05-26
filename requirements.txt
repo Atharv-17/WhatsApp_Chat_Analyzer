@@ -1,7 +1,4 @@
 streamlit
 matplotlib
 urlextract
-pandas
-collections
 wordcloud
-re

@@ -2,3 +2,4 @@ streamlit
 matplotlib
 urlextract
 wordcloud
+nltk

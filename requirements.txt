@@ -4,3 +4,4 @@ urlextract
 wordcloud
 nltk
 spacy
+scikit-learn

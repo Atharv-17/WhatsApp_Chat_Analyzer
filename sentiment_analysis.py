@@ -6,7 +6,9 @@ from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
-
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.decomposition import LatentDirichletAllocation
+import spacy
 nltk.download('stopwords')
 nltk.download('vader_lexicon')
 
@@ -52,6 +54,37 @@ def give_sentiment_score(temp_data):
 
 
 
+def preprocess_text(text):
+    nlp = spacy.load('en_core_web_sm')
+    stop_words = set(stopwords.words('english'))
+    doc = nlp(text)
+    tokens = [token.lemma_ for token in doc if token.is_alpha and token.lemma_ not in stop_words]
+    return ' '.join(tokens)
+
+def topic_modelling(temp_data):
+
+    temp_data['processed_txt'] = temp_data['mssgs'].apply(preprocess_text)
+    data_list = list(temp_data['processed_txt'])
+
+    vectorizer = CountVectorizer(analyzer='word')
+    X = vectorizer.fit_transform(data_list)
+
+    # Create and fit an LDA model
+    lda = LatentDirichletAllocation(n_components=5)
+    lda.fit(X)
+
+    topics = []
+    terms = vectorizer.get_feature_names_out()
+    for idx, topic in enumerate(lda.components_):
+        top_words_idx = topic.argsort()[-5:][::-1]
+        top_words = [terms[i] for i in top_words_idx]
+        topics.append({
+            'Topic': f'Topic {idx + 1}',
+            'Top Words': ", ".join(top_words)
+        })
+
+    topics_df = pd.DataFrame(topics)
+    return topics_df
 
 
 
@@ -64,25 +97,7 @@ def give_sentiment_score(temp_data):
 
 
 
-#creating data for senti. analysis
-# def give_senti_data(selected_user,df,start_date,end_date):
-#
-#     if (selected_user != "overall"):
-#         df = df[df['user'] == selected_user]
-#
-#
-#     # start_date = input("Enter the starting date for your sentiment analysis:")
-#     # end_date = input("Enter the ending date for your sentiment analysis:")
-#
-#     mask = (df['msg_dates'] >= start_date) & (df['msg_dates'] <= end_date)
-#     senti_analysis_data = df.loc[mask]
-#     senti_analysis_data = senti_analysis_data[['user', 'message']]
-#
-#     senti_analysis_data = senti_analysis_data[senti_analysis_data['message'] != '<Media omitted>\n']
-#     senti_analysis_data = senti_analysis_data[senti_analysis_data['user'] != 'grp_notification']
-#
-#     senti_analysis_data = senti_analysis_data['message']
-#
-#     temp = pd.DataFrame(data=senti_analysis_data.values, columns=['mssgs'])
-#
-#     return temp
+
+
+
+

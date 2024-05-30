@@ -17,6 +17,8 @@ if 'show_analysis' not in st.session_state:
     st.session_state.show_analysis = False
 if 'show_sentiment_analysis' not in st.session_state:
     st.session_state.show_sentiment_analysis = False
+if 'Show_Imp_Topics_discussed' not in st.session_state:
+    st.session_state.Show_Imp_Topics_discussed = False
 
 # Set up the sidebar and main interface
 st.sidebar.title("WhatsApp Chat Analyzer")
@@ -162,6 +164,8 @@ if st.session_state.df is not None:
         if st.session_state.show_sentiment_analysis:
             sentiment_df = sentiment_analysis.give_senti_data(selected_user, df, start_date, end_date)
             if sentiment_df is not None:
+
+
                 senti_score = sentiment_analysis.give_sentiment_score(sentiment_df)
                 if(selected_user=='overall'):
                     done_by = 'group'
@@ -170,18 +174,26 @@ if st.session_state.df is not None:
 
                 if(senti_score>0.02):
                     st.write(f"The Overall Sentiment of the chat over the given dates between {start_date} and {end_date} "
-                             f"wrt {done_by} is POSITIVE with a normalized sentiment score of {senti_score}")
+                             f"wrt {done_by} is **__POSITIVE__**")
 
                 elif(senti_score<-0.02):
                     st.write(f"The Overall Sentiment of the chat over the given dates between {start_date} and {end_date} "
-                             f"wrt {done_by} is NEGATIVE  with a normalized sentiment score of {senti_score}")
+                             f"wrt {done_by} is **__NEGATIVE_**")
                 else:
                     st.write(f"The Overall Sentiment of the chat over the given dates between {start_date} and {end_date} "
-                             f"wrt {done_by} is NEUTRAL  with a normalized sentiment score of {senti_score}")
+                             f"wrt {done_by} is **__NEUTRAL__**")
 
 
 
+                if st.button("Show Imp Topics discussed"):
+                    st.session_state.Show_Imp_Topics_discussed = True
 
+                if st.session_state.Show_Imp_Topics_discussed:
 
+                    st.divider()
+                    st.write("Few Important topics over this time period were:")
+                    topic_df = sentiment_analysis.topic_modelling(sentiment_df)
+                    st.dataframe(topic_df)
+                    st.divider()
 
 

@@ -1,4 +1,4 @@
-# **WhatsApp Chat Analyzer**
+# **SkillSync Matcher**
 
 ## Introduction
 
